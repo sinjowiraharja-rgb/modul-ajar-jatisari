@@ -224,6 +224,8 @@ def add_referensi_mapel(data):
         return True, "Referensi berhasil ditambahkan"
     except sqlite3.IntegrityError:
         return False, "Referensi sudah ada"
+    except Exception as e:
+        return False, f"Gagal menyimpan: {str(e)}"
     finally:
         conn.close()
 

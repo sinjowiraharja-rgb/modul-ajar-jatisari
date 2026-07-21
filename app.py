@@ -152,34 +152,37 @@ def kelola_guru():
 @admin_required
 def kelola_referensi():
     if request.method == 'POST':
-        action = request.form.get('action')
-        if action == 'create':
-            data = {
-                'fase': request.form.get('fase', '').strip(),
-                'kelas': request.form.get('kelas', '').strip(),
-                'mapel': request.form.get('mapel', '').strip(),
-                'elemen': request.form.get('elemen', '').strip(),
-                'capaian_pembelajaran': request.form.get('capaian_pembelajaran', '').strip(),
-            }
-            success, msg = db.add_referensi_mapel(data)
-            flash(msg, 'success' if success else 'danger')
-        elif action == 'delete':
-            ref_id = request.form.get('ref_id')
-            if ref_id:
-                db.delete_referensi_mapel(int(ref_id))
-                flash('Referensi berhasil dihapus.', 'success')
-        elif action == 'update':
-            ref_id = request.form.get('ref_id')
-            data = {
-                'fase': request.form.get('fase', '').strip(),
-                'kelas': request.form.get('kelas', '').strip(),
-                'mapel': request.form.get('mapel', '').strip(),
-                'elemen': request.form.get('elemen', '').strip(),
-                'capaian_pembelajaran': request.form.get('capaian_pembelajaran', '').strip(),
-            }
-            if ref_id:
-                db.update_referensi_mapel(int(ref_id), data)
-                flash('Referensi berhasil diperbarui.', 'success')
+        action = request.form.get('action', '')
+        try:
+            if action == 'create':
+                data = {
+                    'fase': request.form.get('fase', '').strip(),
+                    'kelas': request.form.get('kelas', '').strip(),
+                    'mapel': request.form.get('mapel', '').strip(),
+                    'elemen': request.form.get('elemen', '').strip(),
+                    'capaian_pembelajaran': request.form.get('capaian_pembelajaran', '').strip(),
+                }
+                success, msg = db.add_referensi_mapel(data)
+                flash(msg, 'success' if success else 'danger')
+            elif action == 'delete':
+                ref_id = request.form.get('ref_id')
+                if ref_id:
+                    db.delete_referensi_mapel(int(ref_id))
+                    flash('Referensi berhasil dihapus.', 'success')
+            elif action == 'update':
+                ref_id = request.form.get('ref_id')
+                data = {
+                    'fase': request.form.get('fase', '').strip(),
+                    'kelas': request.form.get('kelas', '').strip(),
+                    'mapel': request.form.get('mapel', '').strip(),
+                    'elemen': request.form.get('elemen', '').strip(),
+                    'capaian_pembelajaran': request.form.get('capaian_pembelajaran', '').strip(),
+                }
+                if ref_id:
+                    db.update_referensi_mapel(int(ref_id), data)
+                    flash('Referensi berhasil diperbarui.', 'success')
+        except Exception as e:
+            flash(f'Terjadi kesalahan: {str(e)}', 'danger')
         return redirect(url_for('kelola_referensi'))
 
     referensi = db.list_referensi_mapel()
