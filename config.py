@@ -35,8 +35,7 @@ MAPEL_SD = [
     "Pendidikan Kewarganegaraan",
     "Bahasa Indonesia",
     "Matematika",
-    "Ilmu Pengetahuan Alam",
-    "Ilmu Pengetahuan Sosial",
+    "Ilmu Pengetahuan Alam dan Sosial (IPAS)",
     "Seni Budaya dan Prakarya",
     "Pendidikan Jasmani, Olahraga, dan Kesehatan",
     "Bahasa Inggris"
