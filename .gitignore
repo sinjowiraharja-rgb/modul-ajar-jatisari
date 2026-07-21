@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.env
+venv/
+env/
+
+# Database & Uploads
+data/*.db
+data/*.docx
+data/*.pdf
+static/uploads/
+
+# IDE
+.vscode/
+.idea/
+*.swp

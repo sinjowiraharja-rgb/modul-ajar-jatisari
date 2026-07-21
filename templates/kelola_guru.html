@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Kelola Guru - Modul Ajar Jatisari{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold text-success"><i class="bi bi-people me-2"></i>Kelola Guru</h3>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahGuru">
+        <i class="bi bi-plus-lg me-2"></i>Tambah Guru
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-list-check me-2"></i>Daftar Guru
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>No</th>
+                        <th>Nama Lengkap</th>
+                        <th>Username</th>
+                        <th>Kelas Diampu</th>
+                        <th>Mapel Diampu</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for guru in gurus %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ guru.nama_lengkap }}</td>
+                        <td>{{ guru.username }}</td>
+                        <td>{{ guru.kelas_diampu or '-' }}</td>
+                        <td>{{ guru.mapel_diampu or '-' }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('kelola_guru') }}" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus guru ini?')">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="user_id" value="{{ guru.id }}">
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">Belum ada data guru.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Tambah Guru -->
+<div class="modal fade" id="modalTambahGuru" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tambah Akun Guru</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('kelola_guru') }}">
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="create">
+                    <div class="mb-3">
+                        <label class="form-label">Nama Lengkap</label>
+                        <input type="text" class="form-control" name="nama_lengkap" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-control" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Kelas Diampu (opsional)</label>
+                        <input type="text" class="form-control" name="kelas_diampu" placeholder="contoh: 1, 2, 3">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mapel Diampu (opsional)</label>
+                        <input type="text" class="form-control" name="mapel_diampu" placeholder="contoh: Matematika, Bahasa Indonesia">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

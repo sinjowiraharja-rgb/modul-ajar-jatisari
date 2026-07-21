@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Referensi Mapel - Modul Ajar Jatisari{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold text-success"><i class="bi bi-journals me-2"></i>Referensi Mata Pelajaran</h3>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahReferensi">
+        <i class="bi bi-plus-lg me-2"></i>Tambah Referensi
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-list-check me-2"></i>Daftar Referensi
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>No</th>
+                        <th>Fase</th>
+                        <th>Kelas</th>
+                        <th>Mapel</th>
+                        <th>Elemen</th>
+                        <th>Capaian Pembelajaran</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ref in referensi %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ ref.fase }}</td>
+                        <td>{{ ref.kelas }}</td>
+                        <td>{{ ref.mapel }}</td>
+                        <td>{{ ref.elemen or '-' }}</td>
+                        <td>{{ ref.capaian_pembelajaran or '-' }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning me-1" data-bs-toggle="modal" data-bs-target="#modalEdit{{ ref.id }}">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <form method="POST" action="{{ url_for('kelola_referensi') }}" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus referensi ini?')">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="ref_id" value="{{ ref.id }}">
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">Belum ada data referensi.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Tambah Referensi -->
+<div class="modal fade" id="modalTambahReferensi" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tambah Referensi Mapel</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('kelola_referensi') }}">
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="create">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Fase</label>
+                            <select class="form-select" name="fase" required>
+                                <option value="">Pilih Fase</option>
+                                {% for fase in fase_kelas.keys() %}
+                                <option value="{{ fase }}">Fase {{ fase }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Kelas</label>
+                            <select class="form-select" name="kelas" required>
+                                <option value="">Pilih Kelas</option>
+                                {% for fase, kelas_list in fase_kelas.items() %}
+                                    {% for k in kelas_list %}
+                                    <option value="{{ k }}">Kelas {{ k }}</option>
+                                    {% endfor %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Mata Pelajaran</label>
+                            <select class="form-select" name="mapel" required>
+                                <option value="">Pilih Mapel</option>
+                                {% for mapel in mapel_list %}
+                                <option value="{{ mapel }}">{{ mapel }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Elemen (opsional)</label>
+                            <input type="text" class="form-control" name="elemen">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Capaian Pembelajaran (opsional)</label>
+                            <textarea class="form-control" name="capaian_pembelajaran" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit -->
+{% for ref in referensi %}
+<div class="modal fade" id="modalEdit{{ ref.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Referensi Mapel</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('kelola_referensi') }}">
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="update">
+                    <input type="hidden" name="ref_id" value="{{ ref.id }}">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Fase</label>
+                            <select class="form-select" name="fase" required>
+                                {% for fase in fase_kelas.keys() %}
+                                <option value="{{ fase }}" {{ 'selected' if ref.fase == fase else '' }}>Fase {{ fase }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Kelas</label>
+                            <select class="form-select" name="kelas" required>
+                                {% for fase, kelas_list in fase_kelas.items() %}
+                                    {% for k in kelas_list %}
+                                    <option value="{{ k }}" {{ 'selected' if ref.kelas == k else '' }}>Kelas {{ k }}</option>
+                                    {% endfor %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Mata Pelajaran</label>
+                            <select class="form-select" name="mapel" required>
+                                {% for mapel in mapel_list %}
+                                <option value="{{ mapel }}" {{ 'selected' if ref.mapel == mapel else '' }}>{{ mapel }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Elemen</label>
+                            <input type="text" class="form-control" name="elemen" value="{{ ref.elemen or '' }}">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Capaian Pembelajaran</label>
+                            <textarea class="form-control" name="capaian_pembelajaran" rows="3">{{ ref.capaian_pembelajaran or '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

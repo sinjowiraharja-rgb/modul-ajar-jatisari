@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Profil Sekolah - Modul Ajar Jatisari{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold text-success"><i class="bi bi-building me-2"></i>Profil Sekolah</h3>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-pencil-square me-2"></i>Kelola Profil Sekolah
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('kelola_sekolah') }}">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Nama Sekolah</label>
+                    <input type="text" class="form-control" name="nama_sekolah" value="{{ profil.nama_sekolah if profil else 'SD Negeri Jatisari' }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">NPSN</label>
+                    <input type="text" class="form-control" name="npsn" value="{{ profil.npsn if profil else '' }}">
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Alamat</label>
+                    <textarea class="form-control" name="alamat" rows="2">{{ profil.alamat if profil else '' }}</textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Nama Kepala Sekolah</label>
+                    <input type="text" class="form-control" name="nama_kepala_sekolah" value="{{ profil.nama_kepala_sekolah if profil else '' }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">NIP Kepala Sekolah</label>
+                    <input type="text" class="form-control" name="nip_kepala_sekolah" value="{{ profil.nip_kepala_sekolah if profil else '' }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Semester</label>
+                    <select class="form-select" name="semester">
+                        <option value="Ganjil" {{ 'selected' if profil and profil.semester == 'Ganjil' else '' }}>Ganjil</option>
+                        <option value="Genap" {{ 'selected' if profil and profil.semester == 'Genap' else '' }}>Genap</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Tahun Ajaran</label>
+                    <input type="text" class="form-control" name="tahun_ajaran" value="{{ profil.tahun_ajaran if profil else '2024/2025' }}" placeholder="contoh: 2024/2025">
+                </div>
+            </div>
+            <div class="mt-4 d-grid d-md-flex justify-content-md-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save me-2"></i>Simpan Profil
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

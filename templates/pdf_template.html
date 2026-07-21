@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Modul Ajar {{ modul.mapel }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+            @bottom-center {
+                content: "Modul Ajar Jatisari | Halaman " counter(page) " dari " counter(pages);
+                font-size: 9pt;
+                color: #666;
+            }
+        }
+        body {
+            font-family: "Arial", sans-serif;
+            font-size: 11pt;
+            line-height: 1.6;
+            color: #000;
+        }
+        .text-center { text-align: center; }
+        .title {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #1e5128;
+            margin-bottom: 0;
+        }
+        .subtitle {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-top: 8px;
+            margin-bottom: 4px;
+        }
+        h1 {
+            font-size: 14pt;
+            color: #1e5128;
+            border-bottom: 2px solid #d8e9a8;
+            padding-bottom: 6px;
+            margin-top: 24px;
+        }
+        h2 {
+            font-size: 12pt;
+            color: #4e9f3d;
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+        }
+        table, th, td {
+            border: 1px solid #333;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #f0f0f0;
+            width: 35%;
+        }
+        ul {
+            margin: 8px 0;
+            padding-left: 24px;
+        }
+        li {
+            margin-bottom: 4px;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .footer-text {
+            text-align: center;
+            font-size: 9pt;
+            color: #666;
+            margin-top: 40px;
+        }
+        .preserve-linebreaks {
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="text-center">
+        <div class="title">MODUL AJAR</div>
+        <div class="subtitle">{{ modul.mapel }}</div>
+        <div style="font-size: 12pt; margin-top: 6px;">{{ modul.topik }}</div>
+        <div style="font-size: 11pt; color: #555;">Kelas {{ modul.kelas }} | Fase {{ modul.fase }}</div>
+    </div>
+
+    <h1>A. Informasi Umum</h1>
+    <table>
+        <tr><th>Nama Penyusun</th><td>{{ modul.nama_guru }}</td></tr>
+        <tr><th>Kepala Sekolah</th><td>{{ modul.nama_kepala_sekolah }}</td></tr>
+        <tr><th>Satuan Pendidikan</th><td>{{ modul.nama_sekolah }}</td></tr>
+        <tr><th>Fase / Kelas</th><td>{{ modul.fase }} / {{ modul.kelas }}</td></tr>
+        <tr><th>Mata Pelajaran</th><td>{{ modul.mapel }}</td></tr>
+        <tr><th>Topik / Materi</th><td>{{ modul.topik }}</td></tr>
+        <tr><th>Alokasi Waktu</th><td>{{ modul.alokasi_waktu }}</td></tr>
+        <tr><th>Minggu Pelaksanaan</th><td>{{ modul.minggu_pelaksanaan or '-' }}</td></tr>
+        <tr><th>Model Pembelajaran</th><td>{{ modul.model_pembelajaran }}</td></tr>
+        <tr><th>Pendekatan</th><td>{{ 'Deep Learning' if modul.pendekatan == 'deep_learning' else 'S.T.E.A.M' }}</td></tr>
+    </table>
+
+    <h2>Kompetensi Awal</h2>
+    <p class="preserve-linebreaks">{{ modul.kompetensi_awal or '-' }}</p>
+
+    <h2>Profil Pelajar Pancasila</h2>
+    <ul>
+        {% for dimensi in dimensi_list %}
+            {% if dimensi %}
+            <li>{{ dimensi }}</li>
+            {% endif %}
+        {% else %}
+        <li>-</li>
+        {% endfor %}
+    </ul>
+
+    <h1>B. Komponen Inti</h1>
+
+    <h2>Tujuan Pembelajaran</h2>
+    <p class="preserve-linebreaks">{{ modul.tujuan_pembelajaran or '-' }}</p>
+
+    <h2>Pemahaman Bermakna</h2>
+    <p class="preserve-linebreaks">{{ modul.pemahaman_bermakna or '-' }}</p>
+
+    <h2>Pertanyaan Pemantik</h2>
+    <p class="preserve-linebreaks">{{ modul.pertanyaan_pemantik or '-' }}</p>
+
+    <h2>Persiapan Pembelajaran</h2>
+    <p class="preserve-linebreaks">{{ modul.persiapan_pembelajaran or '-' }}</p>
+
+    <h2>Sarana dan Prasarana</h2>
+    <p class="preserve-linebreaks">{{ modul.sarana_prasarana or '-' }}</p>
+
+    <h2>Target Peserta Didik</h2>
+    <p class="preserve-linebreaks">{{ modul.target_peserta_didik or '-' }}</p>
+
+    <h2>Langkah-langkah Pembelajaran</h2>
+    <p class="preserve-linebreaks">{{ modul.langkah_pembelajaran or '-' }}</p>
+
+    <h2>Asesmen</h2>
+    <p class="preserve-linebreaks">{{ modul.asesmen or '-' }}</p>
+
+    <h2>Pengayaan</h2>
+    <p class="preserve-linebreaks">{{ modul.pengayaan or '-' }}</p>
+
+    <h2>Remedial</h2>
+    <p class="preserve-linebreaks">{{ modul.remedial or '-' }}</p>
+
+    <h1>C. Lampiran</h1>
+
+    <h2>Lembar Kerja Peserta Didik (LKPD)</h2>
+    <p class="preserve-linebreaks">{{ modul.lkpd or '-' }}</p>
+
+    <h2>Bahan Bacaan Guru dan Murid</h2>
+    <p class="preserve-linebreaks">{{ modul.bahan_bacaan or '-' }}</p>
+
+    <h2>Glosarium</h2>
+    <p class="preserve-linebreaks">{{ modul.glosarium or '-' }}</p>
+
+    <h2>Daftar Pustaka</h2>
+    <p class="preserve-linebreaks">{{ modul.daftar_pustaka or '-' }}</p>
+
+    <div class="footer-text">
+        Modul Ajar Jatisari | Dibuat otomatis melalui aplikasi Modul Ajar Jatisari
+    </div>
+</body>
+</html>

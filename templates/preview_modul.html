@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Preview Modul Ajar - Modul Ajar Jatisari{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h3 class="fw-bold text-success m-0"><i class="bi bi-eye me-2"></i>Preview Modul Ajar</h3>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('edit_modul', modul_id=modul.id) }}" class="btn btn-warning">
+            <i class="bi bi-pencil me-2"></i>Edit
+        </a>
+        <a href="{{ url_for('export_word', modul_id=modul.id) }}" class="btn btn-primary">
+            <i class="bi bi-file-earmark-word me-2"></i>Export Word
+        </a>
+        <a href="{{ url_for('export_pdf', modul_id=modul.id) }}" class="btn btn-danger">
+            <i class="bi bi-file-earmark-pdf me-2"></i>Export PDF
+        </a>
+    </div>
+</div>
+
+<div class="preview-box">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-success">MODUL AJAR</h2>
+        <h4 class="fw-bold">{{ modul.mapel }}</h4>
+        <h5>{{ modul.topik }}</h5>
+        <p class="text-muted">Kelas {{ modul.kelas }} | Fase {{ modul.fase }}</p>
+    </div>
+
+    <!-- A. Informasi Umum -->
+    <div class="preview-section">
+        <h4>A. Informasi Umum</h4>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <tbody>
+                    <tr><td style="width: 35%;">Nama Penyusun</td><td>{{ modul.nama_guru }}</td></tr>
+                    <tr><td>Kepala Sekolah</td><td>{{ modul.nama_kepala_sekolah }}</td></tr>
+                    <tr><td>Satuan Pendidikan</td><td>{{ modul.nama_sekolah }}</td></tr>
+                    <tr><td>Fase / Kelas</td><td>{{ modul.fase }} / {{ modul.kelas }}</td></tr>
+                    <tr><td>Mata Pelajaran</td><td>{{ modul.mapel }}</td></tr>
+                    <tr><td>Topik / Materi</td><td>{{ modul.topik }}</td></tr>
+                    <tr><td>Alokasi Waktu</td><td>{{ modul.alokasi_waktu }}</td></tr>
+                    <tr><td>Minggu Pelaksanaan</td><td>{{ modul.minggu_pelaksanaan or '-' }}</td></tr>
+                    <tr><td>Model Pembelajaran</td><td>{{ modul.model_pembelajaran }}</td></tr>
+                    <tr><td>Pendekatan</td><td>{{ 'Deep Learning' if modul.pendekatan == 'deep_learning' else 'S.T.E.A.M' }}</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h5>Kompetensi Awal</h5>
+        <p>{{ modul.kompetensi_awal or '-' }}</p>
+
+        <h5>Profil Pelajar Pancasila</h5>
+        <ul>
+            {% for dimensi in modul.dimensi_pancasila.split(',') %}
+                {% if dimensi.strip() %}
+                <li>{{ dimensi.strip() }}</li>
+                {% endif %}
+            {% else %}
+            <li>-</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- B. Komponen Inti -->
+    <div class="preview-section">
+        <h4>B. Komponen Inti</h4>
+
+        <h5>Tujuan Pembelajaran</h5>
+        <p>{{ modul.tujuan_pembelajaran or '-' }}</p>
+
+        <h5>Pemahaman Bermakna</h5>
+        <p>{{ modul.pemahaman_bermakna or '-' }}</p>
+
+        <h5>Pertanyaan Pemantik</h5>
+        <p>{{ modul.pertanyaan_pemantik or '-' }}</p>
+
+        <h5>Persiapan Pembelajaran</h5>
+        <p>{{ modul.persiapan_pembelajaran or '-' }}</p>
+
+        <h5>Sarana dan Prasarana</h5>
+        <p>{{ modul.sarana_prasarana or '-' }}</p>
+
+        <h5>Target Peserta Didik</h5>
+        <p>{{ modul.target_peserta_didik or '-' }}</p>
+
+        <h5>Langkah-langkah Pembelajaran</h5>
+        <p>{{ modul.langkah_pembelajaran or '-' }}</p>
+
+        <h5>Asesmen</h5>
+        <p>{{ modul.asesmen or '-' }}</p>
+
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Pengayaan</h5>
+                <p>{{ modul.pengayaan or '-' }}</p>
+            </div>
+            <div class="col-md-6">
+                <h5>Remedial</h5>
+                <p>{{ modul.remedial or '-' }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- C. Lampiran -->
+    <div class="preview-section">
+        <h4>C. Lampiran</h4>
+
+        <h5>Lembar Kerja Peserta Didik (LKPD)</h5>
+        <p>{{ modul.lkpd or '-' }}</p>
+
+        <h5>Bahan Bacaan Guru dan Murid</h5>
+        <p>{{ modul.bahan_bacaan or '-' }}</p>
+
+        <h5>Glosarium</h5>
+        <p>{{ modul.glosarium or '-' }}</p>
+
+        <h5>Daftar Pustaka</h5>
+        <p>{{ modul.daftar_pustaka or '-' }}</p>
+    </div>
+
+    <div class="text-center text-muted mt-5">
+        <small>Modul Ajar Jatisari | Dibuat otomatis melalui aplikasi Modul Ajar Jatisari</small>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between mt-4 mb-5">
+    <a href="{{ url_for('riwayat_modul') }}" class="btn btn-secondary"><i class="bi bi-arrow-left me-2"></i>Kembali ke Riwayat</a>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('export_word', modul_id=modul.id) }}" class="btn btn-primary"><i class="bi bi-file-earmark-word me-2"></i>Export Word</a>
+        <a href="{{ url_for('export_pdf', modul_id=modul.id) }}" class="btn btn-danger"><i class="bi bi-file-earmark-pdf me-2"></i>Export PDF</a>
+    </div>
+</div>
+{% endblock %}

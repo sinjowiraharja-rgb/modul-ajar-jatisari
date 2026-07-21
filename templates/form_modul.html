@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+
+{% block title %}{% if modul %}Edit{% else %}Buat{% endif %} Modul Ajar - Modul Ajar Jatisari{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold text-success">
+        <i class="bi bi-journal-plus me-2"></i>{% if modul %}Edit{% else %}Buat{% endif %} Modul Ajar
+    </h3>
+    {% if modul %}
+    <a href="{{ url_for('preview_modul', modul_id=modul.id) }}" class="btn btn-success">
+        <i class="bi bi-eye me-2"></i>Preview Modul
+    </a>
+    {% endif %}
+</div>
+
+<form method="POST" action="{% if modul %}{{ url_for('edit_modul', modul_id=modul.id) }}{% else %}{{ url_for('modul_baru') }}{% endif %}">
+    <!-- A. Informasi Umum -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="bi bi-info-circle me-2"></i>A. Informasi Umum
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Jenis Dokumen</label>
+                    <select class="form-select" name="jenis_dokumen" required>
+                        {% for jenis in ['Modul Ajar', 'RPP', 'Prota', 'Promes', 'LKPD'] %}
+                        <option value="{{ jenis }}" {{ 'selected' if modul and modul.jenis_dokumen == jenis else '' }}>{{ jenis }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Nama Penyusun (Guru)</label>
+                    <input type="text" class="form-control" name="nama_guru" value="{{ modul.nama_guru if modul else user.nama_lengkap }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Nama Kepala Sekolah</label>
+                    <input type="text" class="form-control" name="nama_kepala_sekolah" value="{{ modul.nama_kepala_sekolah if modul else (profil.nama_kepala_sekolah if profil else '') }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Satuan Pendidikan</label>
+                    <input type="text" class="form-control" name="nama_sekolah" value="{{ modul.nama_sekolah if modul else (profil.nama_sekolah if profil else 'SD Negeri Jatisari') }}" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Fase</label>
+                    <select class="form-select" name="fase" id="faseSelect" required>
+                        <option value="">Pilih Fase</option>
+                        {% for fase in fase_kelas.keys() %}
+                        <option value="{{ fase }}" {{ 'selected' if modul and modul.fase == fase else '' }}>Fase {{ fase }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Kelas</label>
+                    <select class="form-select" name="kelas" id="kelasSelect" required>
+                        <option value="">Pilih Kelas</option>
+                        {% for fase, kelas_list in fase_kelas.items() %}
+                            {% for k in kelas_list %}
+                            <option value="{{ k }}" data-fase="{{ fase }}" {{ 'selected' if modul and modul.kelas == k else '' }}>Kelas {{ k }}</option>
+                            {% endfor %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Mata Pelajaran</label>
+                    <select class="form-select" name="mapel" id="mapelSelect" required>
+                        <option value="">Pilih Mapel</option>
+                        {% for mapel in mapel_list %}
+                        <option value="{{ mapel }}" {{ 'selected' if modul and modul.mapel == mapel else '' }}>{{ mapel }}</option>
+                        {% endfor %}
+                    </select>
+                    <div id="capaianInfo" class="form-text mt-2 fst-italic text-info"></div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Topik / Materi</label>
+                    <input type="text" class="form-control" name="topik" value="{{ modul.topik if modul else '' }}" placeholder="contoh: Perkembangan Hewan" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Alokasi Waktu</label>
+                    <input type="text" class="form-control" name="alokasi_waktu" value="{{ modul.alokasi_waktu if modul else '2 x 35 menit' }}" placeholder="contoh: 2 x 35 menit" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Minggu Pelaksanaan</label>
+                    <input type="text" class="form-control" name="minggu_pelaksanaan" value="{{ modul.minggu_pelaksanaan if modul else '' }}" placeholder="contoh: Minggu ke-3">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Model Pembelajaran</label>
+                    <select class="form-select" name="model_pembelajaran" required>
+                        {% for model in ['Tatap Muka', 'Daring', 'Campuran (Tatap Muka + Daring)'] %}
+                        <option value="{{ model }}" {{ 'selected' if modul and modul.model_pembelajaran == model else '' }}>{{ model }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Kompetensi Awal</label>
+                    <textarea class="form-control" name="kompetensi_awal" rows="2" placeholder="Pengetahuan prasyarat yang harus dimiliki siswa">{{ modul.kompetensi_awal if modul else '' }}</textarea>
+                </div>
+                <div class="col-12">
+                    <label class="form-label d-block">Profil Pelajar Pancasila (8 Dimensi)</label>
+                    <div class="row g-2">
+                        {% for dimensi in dimensi_list %}
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="dimensi_pancasila" value="{{ dimensi }}" id="dimensi{{ loop.index }}"
+                                    {% if modul and dimensi in modul.dimensi_pancasila %}checked{% endif %}>
+                                <label class="form-check-label" for="dimensi{{ loop.index }}">{{ dimensi }}</label>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-12">
+                    <label class="form-label d-block">Pendekatan Pembelajaran</label>
+                    <div class="btn-group" role="group">
+                        {% for key, label in pendekatan_list %}
+                        <input type="radio" class="btn-check" name="pendekatan" id="pendekatan_{{ key }}" value="{{ key }}" {{ 'checked' if (modul and modul.pendekatan == key) or (not modul and key == 'deep_learning') else '' }} required>
+                        <label class="btn btn-outline-success" for="pendekatan_{{ key }}">{{ label }}</label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Sarana / Prasarana</label>
+                    <textarea class="form-control" name="sarana_prasarana" rows="2" placeholder="Media, alat, bahan">{{ modul.sarana_prasarana if modul else '' }}</textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Target Peserta Didik</label>
+                    <textarea class="form-control" name="target_peserta_didik" rows="2" placeholder="Misal: siswa reguler, inklusi">{{ modul.target_peserta_didik if modul else '' }}</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- B. Komponen Inti -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-journal-text me-2"></i>B. Komponen Inti</span>
+            {% if modul %}
+            <button type="button" id="btnGenerateAI" class="btn btn-warning btn-sm" data-modul-id="{{ modul.id }}">
+                <i class="bi bi-stars me-1"></i><span id="btnGenerateText">Generate dengan AI</span>
+            </button>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label">Tujuan Pembelajaran</label>
+                <textarea class="form-control" name="tujuan_pembelajaran" rows="3" id="fieldTujuan">{{ modul.tujuan_pembelajaran if modul else '' }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Pemahaman Bermakna</label>
+                <textarea class="form-control" name="pemahaman_bermakna" rows="3" id="fieldPemahaman">{{ modul.pemahaman_bermakna if modul else '' }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Pertanyaan Pemantik</label>
+                <textarea class="form-control" name="pertanyaan_pemantik" rows="3" id="fieldPertanyaan">{{ modul.pertanyaan_pemantik if modul else '' }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Persiapan Pembelajaran</label>
+                <textarea class="form-control" name="persiapan_pembelajaran" rows="3" id="fieldPersiapan">{{ modul.persiapan_pembelajaran if modul else '' }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Langkah-langkah Pembelajaran</label>
+                <textarea class="form-control" name="langkah_pembelajaran" rows="6" id="fieldLangkah" placeholder="Akan terisi otomatis jika Generate AI dijalankan">{{ modul.langkah_pembelajaran if modul else '' }}</textarea>
+                <div class="form-text">Untuk Deep Learning, susun dengan tahapan: Koneksi, Obsesi/Mata Heran, Refleksi, Perluasan Ide, Penyempurnaan, Aktivasi.</div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Asesmen</label>
+                <textarea class="form-control" name="asesmen" rows="4" id="fieldAsesmen">{{ modul.asesmen if modul else '' }}</textarea>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Pengayaan</label>
+                    <textarea class="form-control" name="pengayaan" rows="3" id="fieldPengayaan">{{ modul.pengayaan if modul else '' }}</textarea>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Remedial</label>
+                    <textarea class="form-control" name="remedial" rows="3" id="fieldRemedial">{{ modul.remedial if modul else '' }}</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- C. Lampiran -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="bi bi-paperclip me-2"></i>C. Lampiran
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label">Lembar Kerja Peserta Didik (LKPD)</label>
+                <textarea class="form-control" name="lkpd" rows="5" id="fieldLkpd">{{ modul.lkpd if modul else '' }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Bahan Bacaan Guru dan Murid</label>
+                <textarea class="form-control" name="bahan_bacaan" rows="3" id="fieldBahan">{{ modul.bahan_bacaan if modul else '' }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Glosarium</label>
+                <textarea class="form-control" name="glosarium" rows="3" id="fieldGlosarium">{{ modul.glosarium if modul else '' }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Daftar Pustaka</label>
+                <textarea class="form-control" name="daftar_pustaka" rows="3" id="fieldPustaka">{{ modul.daftar_pustaka if modul else '' }}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-5">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Batal</a>
+        <button type="submit" class="btn btn-primary btn-lg">
+            <i class="bi bi-save me-2"></i>{% if modul %}Simpan Perubahan{% else %}Simpan & Lanjutkan{% endif %}
+        </button>
+    </div>
+</form>
+
+<!-- Toast notifikasi -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toastGenerate" class="toast align-items-center text-white bg-success" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body" id="toastGenerateBody">Konten berhasil digenerate.</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Filter kelas berdasarkan fase
+    function filterKelas() {
+        const fase = $('#faseSelect').val();
+        $('#kelasSelect option').each(function() {
+            const optionFase = $(this).data('fase');
+            if (!optionFase) return;
+            if (optionFase === fase) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+        if ($('#kelasSelect option:selected').is(':hidden')) {
+            $('#kelasSelect').val('');
+        }
+    }
+    $('#faseSelect').on('change', filterKelas);
+    filterKelas();
+
+    // Ambil capaian pembelajaran dari referensi
+    function loadCapaian() {
+        const fase = $('#faseSelect').val();
+        const kelas = $('#kelasSelect').val();
+        const mapel = $('#mapelSelect').val();
+        if (fase && kelas && mapel) {
+            $.getJSON('{{ url_for("api_referensi") }}', {fase: fase, kelas: kelas, mapel: mapel}, function(data) {
+                if (data && data.length > 0) {
+                    const capaian = data[0].capaian_pembelajaran;
+                    if (capaian) {
+                        $('#capaianInfo').html('<i class="bi bi-info-circle"></i> Capaian: ' + capaian.substring(0, 200) + (capaian.length > 200 ? '...' : ''));
+                    } else {
+                        $('#capaianInfo').html('');
+                    }
+                } else {
+                    $('#capaianInfo').html('<i class="bi bi-exclamation-triangle"></i> Referensi capaian belum tersedia.');
+                }
+            });
+        }
+    }
+    $('#faseSelect, #kelasSelect, #mapelSelect').on('change', loadCapaian);
+    loadCapaian();
+
+    // Generate AI
+    $('#btnGenerateAI').on('click', function() {
+        const btn = $(this);
+        const modulId = btn.data('modul-id');
+        const originalText = $('#btnGenerateText').text();
+
+        // Pertama simpan form saat ini
+        const formData = $('form').serialize();
+
+        $('#btnGenerateText').text('Menyimpan...');
+        btn.prop('disabled', true);
+
+        $.ajax({
+            url: `/modul/${modulId}/generate-ai`,
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                $('#fieldTujuan').val(response.data.tujuan_pembelajaran || '');
+                $('#fieldPemahaman').val(response.data.pemahaman_bermakna || '');
+                $('#fieldPertanyaan').val(response.data.pertanyaan_pemantik || '');
+                $('#fieldPersiapan').val(response.data.persiapan_pembelajaran || '');
+                $('#fieldLangkah').val(response.data.langkah_pembelajaran || '');
+                $('#fieldAsesmen').val(response.data.asesmen || '');
+                $('#fieldPengayaan').val(response.data.pengayaan || '');
+                $('#fieldRemedial').val(response.data.remedial || '');
+                $('#fieldLkpd').val(response.data.lkpd || '');
+                $('#fieldBahan').val(response.data.bahan_bacaan || '');
+                $('#fieldGlosarium').val(response.data.glosarium || '');
+                $('#fieldPustaka').val(response.data.daftar_pustaka || '');
+
+                $('#toastGenerateBody').text(response.message);
+                $('#toastGenerate').toast('show');
+            },
+            error: function(xhr) {
+                const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan.';
+                $('#toastGenerateBody').text(msg);
+                $('#toastGenerate').removeClass('bg-success').addClass('bg-danger');
+                $('#toastGenerate').toast('show');
+            },
+            complete: function() {
+                $('#btnGenerateText').text(originalText);
+                btn.prop('disabled', false);
+                $('#toastGenerate').removeClass('bg-danger').addClass('bg-success');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
