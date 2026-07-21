@@ -299,20 +299,24 @@ def generate_ai(modul_id):
     if not modul:
         return jsonify({'success': False, 'message': 'Modul tidak ditemukan.'}), 404
 
-    # Update data terlebih dahulu dari form saat ini
-    data = build_modul_data_from_form(user_id)
-    db.update_modul(modul_id, data)
+    # Jika dipanggil dari preview (body JSON), pakai data dari database
+    if request.is_json:
+        data = dict(modul)
+    else:
+        # Dipanggil dari form edit, pakai data form
+        data = build_modul_data_from_form(user_id)
+        db.update_modul(modul_id, data)
 
     generated = generate_modul_content(data)
     if not generated:
         return jsonify({'success': False, 'message': 'Gagal generate konten AI. Pastikan API key Gemini sudah benar.'}), 500
 
     # Update modul dengan hasil generate
-    current = db.get_modul_by_id(modul_id, user_id=user_id, role=role)
+    modul = db.get_modul_by_id(modul_id, user_id=user_id, role=role)
     for key in generated:
-        if key in current:
-            current[key] = generated[key]
-    db.update_modul(modul_id, current)
+        if key in modul:
+            modul[key] = generated[key]
+    db.update_modul(modul_id, modul)
 
     return jsonify({'success': True, 'message': 'Konten berhasil digenerate.', 'data': generated})
 
