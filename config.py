@@ -4,7 +4,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE_DIR, 'data')
+
+# Vercel hanya bisa menulis ke /tmp
+if os.environ.get('VERCEL') == '1':
+    DATA_DIR = os.path.join('/tmp', 'data')
+else:
+    DATA_DIR = os.path.join(BASE_DIR, 'data')
+
 DB_PATH = os.path.join(DATA_DIR, 'modul_ajar.db')
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'modul-ajar-jatisari-default-secret')
