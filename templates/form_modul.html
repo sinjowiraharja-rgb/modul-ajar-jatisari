@@ -94,7 +94,7 @@
                 </div>
                 <div class="col-12">
                     <label class="form-label">Kompetensi Awal</label>
-                    <textarea class="form-control" name="kompetensi_awal" rows="2" placeholder="Pengetahuan prasyarat yang harus dimiliki siswa">{{ modul.kompetensi_awal if modul else '' }}</textarea>
+                    <textarea class="form-control" name="kompetensi_awal" id="fieldKompetensi" rows="2" placeholder="Akan terisi otomatis setelah pilih fase, kelas, dan mapel">{{ modul.kompetensi_awal if modul else '' }}</textarea>
                 </div>
                 <div class="col-12">
                     <label class="form-label d-block">Profil Pelajar Pancasila (8 Dimensi)</label>
@@ -246,7 +246,7 @@ $(document).ready(function() {
     $('#faseSelect').on('change', filterKelas);
     filterKelas();
 
-    // Ambil capaian pembelajaran dari referensi
+    // Ambil capaian pembelajaran dari referensi & isi kompetensi awal
     function loadCapaian() {
         const fase = $('#faseSelect').val();
         const kelas = $('#kelasSelect').val();
@@ -255,13 +255,22 @@ $(document).ready(function() {
             $.getJSON('{{ url_for("api_referensi") }}', {fase: fase, kelas: kelas, mapel: mapel}, function(data) {
                 if (data && data.length > 0) {
                     const capaian = data[0].capaian_pembelajaran;
-                    if (capaian) {
-                        $('#capaianInfo').html('<i class="bi bi-info-circle"></i> Capaian: ' + capaian.substring(0, 200) + (capaian.length > 200 ? '...' : ''));
-                    } else {
-                        $('#capaianInfo').html('');
+                    const elemen = data[0].elemen;
+                    let info = '';
+                    if (elemen) {
+                        info += '<i class="bi bi-info-circle"></i> Elemen: ' + elemen + '<br>';
                     }
+                    if (capaian) {
+                        info += 'Capaian Pembelajaran: ' + capaian.substring(0, 200);
+                        // Isi kompetensi awal dengan capaian pembelajaran
+                        const existing = $('#fieldKompetensi').val();
+                        if (!existing) {
+                            $('#fieldKompetensi').val(capaian);
+                        }
+                    }
+                    $('#capaianInfo').html(info || '');
                 } else {
-                    $('#capaianInfo').html('<i class="bi bi-exclamation-triangle"></i> Referensi capaian belum tersedia.');
+                    $('#capaianInfo').html('<i class="bi bi-exclamation-triangle"></i> Referensi capaian belum tersedia. Silakan input manual atau minta admin menambahkan referensi.');
                 }
             });
         }
