@@ -161,6 +161,7 @@ def kelola_referensi():
                     'mapel': request.form.get('mapel', '').strip(),
                     'elemen': request.form.get('elemen', '').strip(),
                     'capaian_pembelajaran': request.form.get('capaian_pembelajaran', '').strip(),
+                    'list_topik': request.form.get('list_topik', '').strip(),
                 }
                 success, msg = db.add_referensi_mapel(data)
                 flash(msg, 'success' if success else 'danger')
@@ -177,6 +178,7 @@ def kelola_referensi():
                     'mapel': request.form.get('mapel', '').strip(),
                     'elemen': request.form.get('elemen', '').strip(),
                     'capaian_pembelajaran': request.form.get('capaian_pembelajaran', '').strip(),
+                    'list_topik': request.form.get('list_topik', '').strip(),
                 }
                 if ref_id:
                     db.update_referensi_mapel(int(ref_id), data)
@@ -393,7 +395,8 @@ def api_referensi():
     return jsonify([{
         'id': item['id'],
         'elemen': item['elemen'],
-        'capaian_pembelajaran': item['capaian_pembelajaran']
+        'capaian_pembelajaran': item['capaian_pembelajaran'],
+        'list_topik': item['list_topik']
     } for item in data])
 
 

@@ -25,6 +25,7 @@
                         <th>Mapel</th>
                         <th>Elemen</th>
                         <th>Capaian Pembelajaran</th>
+                        <th>Topik</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -37,6 +38,7 @@
                         <td>{{ ref.mapel }}</td>
                         <td>{{ ref.elemen or '-' }}</td>
                         <td>{{ ref.capaian_pembelajaran or '-' }}</td>
+                        <td>{{ ref.list_topik or '-' }}</td>
                         <td>
                             <button class="btn btn-sm btn-warning me-1" data-bs-toggle="modal" data-bs-target="#modalEdit{{ ref.id }}">
                                 <i class="bi bi-pencil"></i>
@@ -52,7 +54,7 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-4">Belum ada data referensi.</td>
+                        <td colspan="8" class="text-center text-muted py-4">Belum ada data referensi.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -109,6 +111,11 @@
                         <div class="col-12">
                             <label class="form-label">Capaian Pembelajaran (opsional)</label>
                             <textarea class="form-control" name="capaian_pembelajaran" rows="3"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Daftar Topik / Materi (pisahkan dengan koma)</label>
+                            <textarea class="form-control" name="list_topik" rows="2" placeholder="contoh: Penjumlahan, Pengurangan, Perkalian, Pembagian"></textarea>
+                            <div class="form-text">Topik ini akan muncul sebagai pilihan dropdown saat guru membuat modul ajar.</div>
                         </div>
                     </div>
                 </div>
@@ -168,6 +175,11 @@
                         <div class="col-12">
                             <label class="form-label">Capaian Pembelajaran</label>
                             <textarea class="form-control" name="capaian_pembelajaran" rows="3">{{ ref.capaian_pembelajaran or '' }}</textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Daftar Topik / Materi (pisahkan dengan koma)</label>
+                            <textarea class="form-control" name="list_topik" rows="2" placeholder="contoh: Penjumlahan, Pengurangan, Perkalian, Pembagian">{{ ref.list_topik or '' }}</textarea>
+                            <div class="form-text">Topik ini akan muncul sebagai pilihan dropdown saat guru membuat modul ajar.</div>
                         </div>
                     </div>
                 </div>

@@ -56,9 +56,15 @@ def init_db():
             mapel TEXT NOT NULL,
             elemen TEXT,
             capaian_pembelajaran TEXT,
+            list_topik TEXT,
             UNIQUE(fase, kelas, mapel)
         )
     ''')
+    # Tambah kolom list_topik jika tabel sudah ada sebelumnya
+    try:
+        cursor.execute('ALTER TABLE referensi_mapel ADD COLUMN list_topik TEXT')
+    except sqlite3.OperationalError:
+        pass  # kolom sudah ada
 
     # Tabel modul ajar
     cursor.execute('''
@@ -215,11 +221,11 @@ def add_referensi_mapel(data):
     conn = get_db_connection()
     try:
         conn.execute('''
-            INSERT INTO referensi_mapel (fase, kelas, mapel, elemen, capaian_pembelajaran)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO referensi_mapel (fase, kelas, mapel, elemen, capaian_pembelajaran, list_topik)
+            VALUES (?, ?, ?, ?, ?, ?)
         ''', (
             data['fase'], data['kelas'], data['mapel'], data.get('elemen', ''),
-            data.get('capaian_pembelajaran', '')
+            data.get('capaian_pembelajaran', ''), data.get('list_topik', '')
         ))
         conn.commit()
         return True, "Referensi berhasil ditambahkan"
@@ -234,10 +240,10 @@ def add_referensi_mapel(data):
 def update_referensi_mapel(ref_id, data):
     conn = get_db_connection()
     conn.execute('''
-        UPDATE referensi_mapel SET fase = ?, kelas = ?, mapel = ?, elemen = ?, capaian_pembelajaran = ?
+        UPDATE referensi_mapel SET fase = ?, kelas = ?, mapel = ?, elemen = ?, capaian_pembelajaran = ?, list_topik = ?
         WHERE id = ?
     ''', (data['fase'], data['kelas'], data['mapel'], data.get('elemen', ''),
-          data.get('capaian_pembelajaran', ''), ref_id))
+          data.get('capaian_pembelajaran', ''), data.get('list_topik', ''), ref_id))
     conn.commit()
     conn.close()
 

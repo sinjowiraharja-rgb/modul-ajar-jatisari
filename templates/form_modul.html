@@ -64,17 +64,31 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Mata Pelajaran</label>
-                    <select class="form-select" name="mapel" id="mapelSelect" required>
+                    <select class="form-select" name="mapel" id="mapelSelect" required onchange="loadCapaian()">
                         <option value="">Pilih Mapel</option>
                         {% for mapel in mapel_list %}
                         <option value="{{ mapel }}" {{ 'selected' if modul and modul.mapel == mapel else '' }}>{{ mapel }}</option>
                         {% endfor %}
                     </select>
-                    <div id="capaianInfo" class="form-text mt-2 fst-italic text-info"></div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Elemen</label>
+                    <input type="text" class="form-control" id="fieldElemen" value="" readonly placeholder="Otomatis setelah pilih kelas & mapel">
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Capaian Pembelajaran</label>
+                    <textarea class="form-control" id="fieldCP" rows="2" readonly placeholder="Otomatis setelah pilih kelas & mapel"></textarea>
+                    <input type="hidden" id="existingTopik" value="{{ modul.topik if modul else '' }}">
+                    <input type="hidden" id="existingElemen" value="{{ '' if not modul else '' }}">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Topik / Materi</label>
-                    <input type="text" class="form-control" name="topik" value="{{ modul.topik if modul else '' }}" placeholder="contoh: Perkembangan Hewan" required>
+                    <select class="form-select" name="topik" id="topikSelect" required>
+                        <option value="">Pilih Topik (otomatis setelah pilih kelas & mapel)</option>
+                    </select>
+                    <div class="form-text">Atau <a href="#" id="linkCustomTopik" style="display:none;" onclick="$('#topikSelect').hide();$('#customTopik').show();$('#customTopik').focus();return false;">ketik manual</a>
+                    <input type="text" class="form-control mt-1" id="customTopik" style="display:none;" placeholder="Ketik topik manual">
+                    </div>
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">Alokasi Waktu</label>
@@ -246,37 +260,90 @@ $(document).ready(function() {
     $('#faseSelect').on('change', filterKelas);
     filterKelas();
 
-    // Ambil capaian pembelajaran dari referensi & isi kompetensi awal
+    // Ambil data referensi & isi Elemen, Capaian, Topik, Kompetensi Awal
     function loadCapaian() {
         const fase = $('#faseSelect').val();
         const kelas = $('#kelasSelect').val();
         const mapel = $('#mapelSelect').val();
         if (fase && kelas && mapel) {
             $.getJSON('{{ url_for("api_referensi") }}', {fase: fase, kelas: kelas, mapel: mapel}, function(data) {
-                if (data && data.length > 0) {
-                    const capaian = data[0].capaian_pembelajaran;
-                    const elemen = data[0].elemen;
-                    let info = '';
-                    if (elemen) {
-                        info += '<i class="bi bi-info-circle"></i> Elemen: ' + elemen + '<br>';
-                    }
-                    if (capaian) {
-                        info += 'Capaian Pembelajaran: ' + capaian.substring(0, 200);
-                        // Isi kompetensi awal dengan capaian pembelajaran
-                        const existing = $('#fieldKompetensi').val();
-                        if (!existing) {
-                            $('#fieldKompetensi').val(capaian);
-                        }
-                    }
-                    $('#capaianInfo').html(info || '');
+                const ref = data && data.length > 0 ? data[0] : null;
+
+                // Elemen
+                if (ref && ref.elemen) {
+                    $('#fieldElemen').val(ref.elemen);
                 } else {
-                    $('#capaianInfo').html('<i class="bi bi-exclamation-triangle"></i> Referensi capaian belum tersedia. Silakan input manual atau minta admin menambahkan referensi.');
+                    $('#fieldElemen').val('(belum diisi admin)');
                 }
+
+                // Capaian Pembelajaran
+                if (ref && ref.capaian_pembelajaran) {
+                    $('#fieldCP').val(ref.capaian_pembelajaran);
+                    // Isi kompetensi awal jika kosong
+                    const existing = $('#fieldKompetensi').val();
+                    if (!existing) {
+                        $('#fieldKompetensi').val(ref.capaian_pembelajaran);
+                    }
+                } else {
+                    $('#fieldCP').val('(belum diisi admin)');
+                }
+
+                // Topik dropdown
+                const $topik = $('#topikSelect');
+                $topik.empty().append('<option value="">Pilih Topik</option>');
+                if (ref && ref.list_topik) {
+                    const topics = ref.list_topik.split(',').map(function(t) { return t.trim(); }).filter(function(t) { return t; });
+                    topics.forEach(function(t) {
+                        $topik.append('<option value="' + t + '">' + t + '</option>');
+                    });
+                }
+                $topik.append('<option value="__custom__">Lainnya (ketik manual)...</option>');
+                $('#linkCustomTopik').show();
+
+                // Reset custom topik
+                $('#customTopik').hide().val('');
             });
         }
     }
-    $('#faseSelect, #kelasSelect, #mapelSelect').on('change', loadCapaian);
+
+    // Handler pilih topik custom
+    $(document).on('change', '#topikSelect', function() {
+        if ($(this).val() === '__custom__') {
+            $(this).hide();
+            $('#customTopik').show().focus();
+        }
+    });
+
+    // Sebelum form submit, pastikan nilai topik benar
+    $('form').on('submit', function() {
+        if ($('#customTopik').is(':visible') && $('#customTopik').val()) {
+            $('#topikSelect').removeAttr('name');
+            $('#customTopik').attr('name', 'topik');
+        } else {
+            $('#customTopik').removeAttr('name');
+            $('#topikSelect').attr('name', 'topik');
+        }
+    });
+    $('#faseSelect, #kelasSelect, #mapelSelect').on('change', function() {
+        loadCapaian();
+    });
     loadCapaian();
+
+    // Set existing topik jika edit modul
+    const existingTopik = $('#existingTopik').val();
+    if (existingTopik) {
+        setTimeout(function() {
+            const $sel = $('#topikSelect');
+            if ($sel.find('option[value="' + existingTopik + '"]').length) {
+                $sel.val(existingTopik);
+            } else {
+                $sel.hide();
+                $('#linkCustomTopik').hide();
+                $('#customTopik').show().val(existingTopik).attr('name', 'topik');
+                $sel.removeAttr('name');
+            }
+        }, 500);
+    }
 
     // Generate AI
     $('#btnGenerateAI').on('click', function() {
